@@ -34,7 +34,7 @@ body {
   transform: translateY(-1px);
 }
 
-/* Custom Scrollbar - Dark & Blue */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -80,9 +80,20 @@ body {
   background: linear-gradient(180deg, rgba(14, 165, 233, 0.15) 0%, rgba(14, 165, 233, 0.02) 100%);
 }
 
-/* Neon Glow Accents */
+/* Shake Animation for Wrong PIN */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.animate-shake {
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Glowing Elements */
 .glow-blue {
-  box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
 }
 
 .glow-text-cyan {
