@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Water Intelligence — SIH 2026 Official Guide for Saurav & Akansha</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 12mm 12mm 14mm 12mm;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      color: #0f172a;
+      background-color: #f1f5f9;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .doc-page {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 16mm 16mm;
+      margin: 16px auto;
+      background: #ffffff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border-radius: 8px;
+      position: relative;
+    }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .doc-page {
+        width: 100% !important;
+        min-height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        page-break-after: always;
+        break-after: page;
+      }
+      .page-break {
+        page-break-before: always;
+        break-before: page;
+      }
+    }
+
+    .water-gradient {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 60%, #0f172a 100%);
+    }
+
+    .code-font {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="antialiased text-slate-800">
+
+  <!-- ================= FLOATING ACTION TOOLBAR (Hidden during print) ================= -->
+  <aside aria-label="Action Toolbar" class="no-print sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-700 py-3 px-4 shadow-xl">
+    <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2 text-white">
+        <i data-lucide="file-text" class="w-5 h-5 text-sky-400"></i>
+        <span class="font-extrabold text-sm tracking-tight">SIH 2026 — Official Team Handbook</span>
+        <span class="text-xs text-slate-400 hidden sm:inline">| Saurav & Akansha</span>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <!-- 1-Click Print/PDF Button -->
+        <button onclick="window.print()" class="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-slate-950 font-black text-xs px-4 py-2 rounded-xl shadow-lg shadow-sky-500/25 transition flex items-center gap-2">
+          <i data-lucide="download" class="w-4 h-4"></i> Download / Print PDF
+        </button>
+
+        <!-- Link to Live Dashboard -->
+        <a href="index.html" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold text-xs px-3.5 py-2 rounded-xl border border-slate-700 transition flex items-center gap-1.5">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Open Live Dashboard →
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= PAGE 1 ================= -->
+  <main class="doc-page">
+    
+    <!-- Top Header Banner -->
+    <header class="water-gradient text-white p-6 rounded-2xl shadow-lg shadow-sky-900/10 mb-6">
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <span class="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white/20 border border-white/30 backdrop-blur">
+          Smart India Hackathon 2026
+        </span>
+        <span class="text-xs text-sky-200 font-semibold">Team Briefing Document</span>
+      </div>
+      <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
+        <i data-lucide="droplets" class="w-7 h-7 text-sky-300"></i> Water Intelligence
+      </h1>
+      <p class="text-sm text-sky-100 font-medium mt-1">
+        Beginner Roadmap & Execution Guide for <strong>Saurav</strong> (Frontend) & <strong>Akansha</strong> (Database)
+      </p>
+    </header>
+
+    <!-- Section 1: Project in 30 Seconds -->
+    <section class="mb-5">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1.5 mb-2.5 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-sky-600 text-white flex items-center justify-center text-xs">1</span>
+        What is the Project in Simple Words?
+      </h2>
+      <div class="bg-sky-50 border-l-4 border-sky-600 p-3.5 rounded-r-xl text-xs leading-relaxed text-slate-700">
+        <strong>Water Intelligence</strong> is an AI-powered early warning decision platform for water scarcity.<br>
+        Standard monitoring systems only show today’s reservoir numbers and warn people <em>after</em> shortages occur. Our platform combines <strong>rainfall deficits + surging demand + depleting groundwater</strong> to predict water stress <strong>4 to 7 days ahead</strong>, giving municipal authorities time to act.
+      </div>
+    </section>
+
+    <!-- Section 2: Roles Side-by-Side -->
+    <section class="mb-5">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1.5 mb-3 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-sky-600 text-white flex items-center justify-center text-xs">2</span>
+        Individual Responsibilities (Who Builds What?)
+      </h2>
+
+      <div class="grid grid-cols-2 gap-4">
+        
+        <!-- Saurav's Card -->
+        <div class="bg-sky-50/70 border border-sky-200 rounded-xl p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-sky-600 text-white">Frontend Lead</span>
+              <i data-lucide="layout" class="w-4 h-4 text-sky-600"></i>
+            </div>
+            <h3 class="text-base font-black text-slate-900">Saurav</h3>
+            <p class="text-xs font-semibold text-sky-800 mb-2.5">"I build what the judges, authorities, and users see."</p>
+            
+            <ul class="space-y-1.5 text-xs text-slate-700">
+              <li class="flex items-start gap-1.5">
+                <span class="text-sky-600 font-bold">✔</span>
+                <span><strong>Dashboard UI:</strong> Region dropdown, KPI cards, and risk alert badges.</span>
+              </li>
+              <li class="flex items-start gap-1.5">
+                <span class="text-sky-600 font-bold">✔</span>
+                <span><strong>Charts (Chart.js):</strong> 4-Day Forecast bar chart & 5-week historical line charts.</span>
+              </li>
+              <li class="flex items-start gap-1.5">
+                <span class="text-sky-600 font-bold">✔</span>
+                <span><strong>Interactive Map (Leaflet.js):</strong> Clickable pins for India's districts.</span>
+              </li>
+              <li class="flex items-start gap-1.5">
+                <span class="text-sky-600 font-bold">✔</span>
+                <span><strong>API Fetch:</strong> Uses JavaScript <code>fetch()</code> to load data dynamically.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="mt-3 pt-2.5 border-t border-sky-200/80 text-[11px] text-slate-600">
+            <strong>Study:</strong> HTML5, Tailwind CSS, JavaScript (DOM & Fetch), Chart.js
+          </div>
+        </div>
+
+        <!-- Akansha's Card -->
+        <div class="bg-purple-50/70 border border-purple-200 rounded-xl p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-purple-700 text-white">Database Lead</span>
+              <i data-lucide="database" class="w-4 h-4 text-purple-700"></i>
+            </div>
+            <h3 class="text-base font-black text-slate-900">Akansha</h3>
+            <p class="text-xs font-semibold text-purple-800 mb-2.5">"I structure and store all project data safely."</p>
+            
+            <ul class="space-y-1.5 text-xs text-slate-700">
+              <li class="flex items-start gap-1.5">
+                <span class="text-purple-700 font-bold">✔</span>
+                <span><strong>Database Schema:</strong> Designs tables for Districts, Weather, Storage & Alerts.</span>
+              </li>
+              <li class="flex items-start gap-1.5">
+                <span class="text-purple-700 font-bold">✔</span>
+                <span><strong>Data Management:</strong> Imports historical sensor data and daily readings.</span>
+              </li>
+              <li class="flex items-start gap-1.5">
+                <span class="text-purple-700 font-bold">✔</span>
+                <span><strong>Fast SQL Queries:</strong> Writes <code>SELECT</code> queries filtered by date and region.</span>
+              </li>
+              <li class="flex items-start gap-1.5">
+                <span class="text-purple-700 font-bold">✔</span>
+                <span><strong>Supplying ML & UI:</strong> Serves organized data to Deep's AI model and Saurav's UI.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="mt-3 pt-2.5 border-t border-purple-200/80 text-[11px] text-slate-600">
+            <strong>Study:</strong> SQL Syntax, SQLite, DB Browser for SQLite, Python (<code>sqlite3</code>)
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Section 3: Data Handshake -->
+    <section class="mb-5">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1.5 mb-2.5 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-sky-600 text-white flex items-center justify-center text-xs">3</span>
+        How Saurav & Akansha Connect (The 3-Step Handshake)
+      </h2>
+
+      <div class="p-3 bg-slate-900 text-white rounded-xl text-xs space-y-2">
+        <div class="flex items-center gap-2">
+          <span class="font-black text-sky-400 bg-sky-950 px-2 py-0.5 rounded border border-sky-800">Step 1</span>
+          <span><strong>Akansha</strong> creates SQLite tables storing rainfall, storage levels, and consumption.</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="font-black text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">Step 2</span>
+          <span><strong>Deep & Bhavishya</strong> pull records from Akansha's DB, run Machine Learning, and produce prediction JSON.</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="font-black text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">Step 3</span>
+          <span><strong>Saurav</strong> receives the JSON and renders the 4-day forecast bar chart, map pins, and risk alerts!</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Sample Database Code for Akansha -->
+    <section>
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1.5 mb-2 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-sky-600 text-white flex items-center justify-center text-xs">4</span>
+        Akansha's SQLite Database Schema (Starter Template)
+      </h2>
+      <div class="bg-slate-950 text-slate-200 p-3 rounded-xl text-[11px] code-font overflow-x-auto border border-slate-800 leading-relaxed">
+<span class="text-slate-500">-- Table 1: Regional Telemetry (Districts)</span>
+<span class="text-sky-400 font-bold">CREATE TABLE</span> regions (
+    region_id <span class="text-amber-300">TEXT PRIMARY KEY</span>,    <span class="text-slate-500">-- 'delhi', 'jaipur', 'bundelkhand'</span>
+    region_name <span class="text-amber-300">TEXT NOT NULL</span>,        <span class="text-slate-500">-- 'Delhi NCR'</span>
+    state <span class="text-amber-300">TEXT</span>,                      <span class="text-slate-500">-- 'Delhi'</span>
+    storage_capacity_pct <span class="text-amber-300">REAL</span>,      <span class="text-slate-500">-- 34.0 (%)</span>
+    groundwater_depth_m <span class="text-amber-300">REAL</span>,       <span class="text-slate-500">-- 38.5 (meters)</span>
+    risk_status <span class="text-amber-300">TEXT</span>                <span class="text-slate-500">-- 'LOW', 'MODERATE', 'HIGH', 'CRITICAL'</span>
+);
+
+<span class="text-slate-500">-- Table 2: 4-Day AI Forecast Results (What Saurav renders in Chart.js)</span>
+<span class="text-sky-400 font-bold">CREATE TABLE</span> forecast_4days (
+    id <span class="text-amber-300">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+    region_id <span class="text-amber-300">TEXT</span>,
+    day_name <span class="text-amber-300">TEXT</span>,                 <span class="text-slate-500">-- 'Today', 'Day 2', 'Day 3', 'Day 4'</span>
+    predicted_availability <span class="text-amber-300">REAL</span>,   <span class="text-slate-500">-- 58.0, 48.0, 38.0, 28.0</span>
+    badge_label <span class="text-amber-300">TEXT</span>               <span class="text-slate-500">-- 'Moderate', 'Stressed', 'High Risk', 'Critical'</span>
+);
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= PAGE 2 ================= -->
+  <main class="doc-page page-break">
+    
+    <!-- Section 5: Study Plan -->
+    <section class="mb-6">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1.5 mb-3 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-sky-600 text-white flex items-center justify-center text-xs">5</span>
+        7-Day Beginner Study Roadmap (Step-by-Step)
+      </h2>
+
+      <table class="w-full text-xs text-left border-collapse border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+        <thead>
+          <tr class="bg-slate-900 text-white">
+            <th class="p-2.5 font-bold w-1/5 border-b border-slate-700">Timeline</th>
+            <th class="p-2.5 font-bold w-2/5 border-b border-slate-700 bg-sky-900/60">Saurav (Frontend & UI)</th>
+            <th class="p-2.5 font-bold w-2/5 border-b border-slate-700 bg-purple-900/60">Akansha (Database & SQL)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+          <tr class="bg-white">
+            <td class="p-2.5 font-bold text-sky-700">Days 1 – 2</td>
+            <td class="p-2.5"><strong>HTML & CSS:</strong> Learn <code>&lt;select&gt;</code>, <code>&lt;div&gt;</code>, <code>&lt;canvas&gt;</code> and basic Tailwind classes for badges & cards.</td>
+            <td class="p-2.5"><strong>SQL Basics:</strong> Learn <code>CREATE TABLE</code>, <code>INSERT INTO</code>, <code>SELECT * FROM</code>, and <code>WHERE</code> filtering.</td>
+          </tr>
+          <tr class="bg-slate-50">
+            <td class="p-2.5 font-bold text-sky-700">Days 3 – 4</td>
+            <td class="p-2.5"><strong>JavaScript DOM:</strong> Learn <code>document.getElementById()</code> to update text, colors, and badges on user click.</td>
+            <td class="p-2.5"><strong>SQLite & DB Browser:</strong> Install <em>DB Browser for SQLite</em> and practice creating district tables with sample test data.</td>
+          </tr>
+          <tr class="bg-white">
+            <td class="p-2.5 font-bold text-sky-700">Days 5 – 6</td>
+            <td class="p-2.5"><strong>Chart.js & Leaflet:</strong> Learn how Chart.js turns an array <code>[58, 48, 38, 28]</code> into colored bars and Leaflet into map pins.</td>
+            <td class="p-2.5"><strong>Python + SQLite:</strong> Write a 5-line Python script using <code>import sqlite3</code> to query database rows into JSON dictionaries.</td>
+          </tr>
+          <tr class="bg-slate-50">
+            <td class="p-2.5 font-bold text-sky-700">Day 7</td>
+            <td class="p-2.5"><strong>Demo Polishing:</strong> Test region switching and practice clicking the <em>"Simulate AI Shift"</em> button for the judges.</td>
+            <td class="p-2.5"><strong>Pipeline Connect:</strong> Ensure database tables can easily pass clean data to Deep's API endpoint.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Section 6: Exact Judge Speeches -->
+    <section class="mb-6">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1.5 mb-3 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-sky-600 text-white flex items-center justify-center text-xs">6</span>
+        What to Say to SIH Judges (Your 30-Second Speeches)
+      </h2>
+
+      <!-- Saurav Pitch -->
+      <div class="bg-slate-950 text-white p-4 rounded-xl mb-3 border-l-4 border-sky-400 shadow-md">
+        <div class="flex items-center gap-2 text-sky-400 font-extrabold text-xs uppercase mb-1">
+          <i data-lucide="mic" class="w-3.5 h-3.5"></i> Saurav's 30-Second Judge Pitch
+        </div>
+        <p class="text-xs text-slate-200 leading-relaxed italic">
+          "Hello Judges! I designed and built the <strong>Frontend and Data Visualisation layer</strong> of Water Intelligence. When an authority selects a region, my frontend dynamically renders the real-time risk level, the 4-day predictive availability chart using Chart.js, the geographic risk map with Leaflet.js, and actionable early-warning alerts. My interface transforms complex machine learning predictions into intuitive, actionable decision support for municipal officers."
+        </p>
+      </div>
+
+      <!-- Akansha Pitch -->
+      <div class="bg-slate-950 text-white p-4 rounded-xl border-l-4 border-purple-400 shadow-md">
+        <div class="flex items-center gap-2 text-purple-400 font-extrabold text-xs uppercase mb-1">
+          <i data-lucide="mic" class="w-3.5 h-3.5"></i> Akansha's 30-Second Judge Pitch
+        </div>
+        <p class="text-xs text-slate-200 leading-relaxed italic">
+          "Hello Judges! I am responsible for the <strong>Database Architecture and Data Management layer</strong>. I designed the structured schema in SQLite to store regional telemetry, rainfall anomaly feeds, reservoir storage metrics, and AI prediction logs. My module ensures that data is cleanly organized, indexed for fast querying, and seamlessly served to our AI model pipeline and frontend dashboard."
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 7: Common Judge Q&A -->
+    <section class="mb-5">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1.5 mb-2.5 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-sky-600 text-white flex items-center justify-center text-xs">7</span>
+        Common Judge Questions & Winning Answers
+      </h2>
+
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+          <strong class="text-slate-900 block mb-1">Q for Saurav: "Why Chart.js instead of heavy frameworks?"</strong>
+          <span class="text-slate-600">"Chart.js is lightweight, highly customizable, responsive, and renders directly to HTML5 Canvas with smooth 60fps animations without bloated dependencies."</span>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+          <strong class="text-slate-900 block mb-1">Q for Akansha: "Why SQLite for the hackathon MVP?"</strong>
+          <span class="text-slate-600">"SQLite is serverless, zero-configuration, and extremely fast for local testing. Our schema is fully SQL-standard, so scaling up to PostgreSQL in production is seamless."</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-6 pt-3 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-400">
+      <span>Water Intelligence Platform · Smart India Hackathon 2026</span>
+      <span>Prepared for Saurav & Akansha</span>
+    </footer>
+
+  </main>
+
+  <script>
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

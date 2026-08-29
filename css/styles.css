@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg-dark: #070b14;
+  --card-dark: #0f172a;
+  --border-dark: #1e293b;
+  --accent-blue: #0ea5e9;
+  --accent-cyan: #38bdf8;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-dark);
+  color: #f1f5f9;
+  background-image: 
+    radial-gradient(at 15% 15%, rgba(14, 165, 233, 0.12) 0px, transparent 50%),
+    radial-gradient(at 85% 85%, rgba(2, 132, 199, 0.08) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Glassmorphism Dark Card Style */
+.glass-card {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(14, 165, 233, 0.05);
+  transition: all 0.25s ease-in-out;
+}
+
+.glass-card:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.7), 0 0 20px -2px rgba(14, 165, 233, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Custom Scrollbar - Dark & Blue */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #070b14;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0284c7;
+}
+
+/* Leaflet Map Dark Theme */
+#map {
+  height: 480px;
+  width: 100%;
+  border-radius: 1rem;
+  z-index: 10;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(15, 23, 42, 0.95) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  backdrop-filter: blur(8px) !important;
+  border-radius: 0.85rem !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8) !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(15, 23, 42, 0.95) !important;
+}
+
+/* Navigation Tabs */
+.tab-btn.active-tab {
+  color: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.15) 0%, rgba(14, 165, 233, 0.02) 100%);
+}
+
+/* Neon Glow Accents */
+.glow-blue {
+  box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+}
+
+.glow-text-cyan {
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
