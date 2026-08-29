@@ -1,14 +1,17 @@
 /**
- * Water Intelligence - Main Application Controller (Dark Blue & Black Edition)
+ * Water Intelligence - Main Application Controller (Dark Blue & Black Edition + PIN Lock)
  * Prepared for SIH 2026 - Saurav (Frontend, Dashboard & Data Visualisation)
  */
+
+const CORRECT_PIN = "2026";
 
 // Application State
 const state = {
   currentRegionKey: "delhi",
   isLiveApiMode: false,
   backendApiUrl: "http://127.0.0.1:5000/api/water-intelligence",
-  data: REGION_DATA
+  data: REGION_DATA,
+  isUnlocked: false
 };
 
 // Expose selectRegion globally for Leaflet map popups
@@ -22,19 +25,72 @@ window.selectRegion = function(regionKey) {
   }
 };
 
-/**
- * Main DOM Content Loaded Event Listener
- */
+// Lock/Unlock Functions
+window.lockDashboard = function() {
+  localStorage.removeItem("wi_dashboard_unlocked");
+  state.isUnlocked = false;
+  const lockModal = document.getElementById("lockModal");
+  if (lockModal) {
+    lockModal.classList.remove("hidden");
+    lockModal.classList.remove("opacity-0", "pointer-events-none");
+  }
+  const pinInput = document.getElementById("pinInput");
+  if (pinInput) {
+    pinInput.value = "";
+    pinInput.focus();
+  }
+};
+
+window.unlockDashboard = function() {
+  const pinInput = document.getElementById("pinInput");
+  const errorMsg = document.getElementById("pinErrorMsg");
+  const lockCard = document.getElementById("lockCard");
+  const enteredPin = pinInput ? pinInput.value.trim() : "";
+
+  if (enteredPin === CORRECT_PIN) {
+    localStorage.setItem("wi_dashboard_unlocked", "true");
+    state.isUnlocked = true;
+    
+    if (errorMsg) errorMsg.classList.add("hidden");
+
+    const lockModal = document.getElementById("lockModal");
+    if (lockModal) {
+      lockModal.classList.add("transition-all", "duration-500", "opacity-0", "pointer-events-none");
+      setTimeout(() => {
+        lockModal.classList.add("hidden");
+      }, 500);
+    }
+
+    setTimeout(() => {
+      renderDashboard(state.currentRegionKey);
+      if (mapInstance) mapInstance.invalidateSize();
+    }, 100);
+
+  } else {
+    if (errorMsg) {
+      errorMsg.textContent = "Incorrect Security PIN. Please try again.";
+      errorMsg.classList.remove("hidden");
+    }
+    if (lockCard) {
+      lockCard.classList.remove("animate-shake");
+      void lockCard.offsetWidth;
+      lockCard.classList.add("animate-shake");
+    }
+    if (pinInput) {
+      pinInput.value = "";
+      pinInput.focus();
+    }
+  }
+};
+
 document.addEventListener("DOMContentLoaded", () => {
-  // Initialize Lucide Icons
   if (window.lucide) {
     lucide.createIcons();
   }
 
-  // Populate Region Dropdown
+  setupLockScreen();
   setupRegionDropdown();
 
-  // Initialize Map
   initMap(state.data, (selectedKey) => {
     state.currentRegionKey = selectedKey;
     const regionSelect = document.getElementById("regionSelect");
@@ -42,12 +98,39 @@ document.addEventListener("DOMContentLoaded", () => {
     renderDashboard(selectedKey);
   });
 
-  // Initial Dashboard Render
   renderDashboard(state.currentRegionKey);
-
-  // Setup Event Listeners
   setupEventListeners();
 });
+
+function setupLockScreen() {
+  const isUnlocked = localStorage.getItem("wi_dashboard_unlocked") === "true";
+  const lockModal = document.getElementById("lockModal");
+  const pinInput = document.getElementById("pinInput");
+  const unlockBtn = document.getElementById("unlockBtn");
+
+  if (isUnlocked) {
+    state.isUnlocked = true;
+    if (lockModal) lockModal.classList.add("hidden");
+  } else {
+    state.isUnlocked = false;
+    if (lockModal) {
+      lockModal.classList.remove("hidden");
+      if (pinInput) setTimeout(() => pinInput.focus(), 200);
+    }
+  }
+
+  if (unlockBtn) {
+    unlockBtn.addEventListener("click", window.unlockDashboard);
+  }
+
+  if (pinInput) {
+    pinInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        window.unlockDashboard();
+      }
+    });
+  }
+}
 
 function setupRegionDropdown() {
   const select = document.getElementById("regionSelect");
@@ -65,7 +148,6 @@ function setupRegionDropdown() {
 }
 
 function setupEventListeners() {
-  // Region Dropdown change
   const regionSelect = document.getElementById("regionSelect");
   if (regionSelect) {
     regionSelect.addEventListener("change", (e) => {
@@ -73,7 +155,6 @@ function setupEventListeners() {
     });
   }
 
-  // Tab switching
   const tabButtons = document.querySelectorAll("[data-tab-target]");
   tabButtons.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -82,7 +163,6 @@ function setupEventListeners() {
     });
   });
 
-  // API Mode Toggle
   const apiModeToggle = document.getElementById("apiModeToggle");
   if (apiModeToggle) {
     apiModeToggle.addEventListener("change", async (e) => {
@@ -101,11 +181,17 @@ function setupEventListeners() {
     });
   }
 
-  // Quick Action Button
   const btnTriggerSim = document.getElementById("btnTriggerSim");
   if (btnTriggerSim) {
     btnTriggerSim.addEventListener("click", () => {
       simulatePredictionDrift();
+    });
+  }
+
+  const btnLockScreen = document.getElementById("btnLockScreen");
+  if (btnLockScreen) {
+    btnLockScreen.addEventListener("click", () => {
+      window.lockDashboard();
     });
   }
 }
@@ -138,14 +224,11 @@ function renderDashboard(regionKey) {
   const data = state.data[regionKey];
   if (!data) return;
 
-  // 1. Header
   setText("regionTitle", data.name);
   setText("regionSubtitle", `Telemetry Node: ${data.state} · Updated Live`);
 
-  // 2. Risk Status Badge
   renderRiskStatusBadge(data.status, data.statusText);
 
-  // 3. KPI Cards
   setText("trendValue", `${data.waterTrend.direction === 'down' ? '↓' : '↑'} ${data.waterTrend.label}`);
   setText("trendDelta", `${data.waterTrend.change} baseline variance`);
   const trendEl = document.getElementById("trendValue");
@@ -165,15 +248,11 @@ function renderDashboard(regionKey) {
   setText("consumptionValue", data.dailyConsumption);
   setText("rainfallAnomalyValue", data.rainfallAnomaly);
 
-  // 4. Update Charts
   updateForecastChart(data.next4Days);
   updateHistoricalChart(data.historical);
   updateFactorDonut(data.factors);
 
-  // 5. Render Early Warning Alert
   renderAlertBanner(data);
-
-  // 6. Render Contributing Factors
   renderFactorsList(data.factors);
 
   if (window.lucide) {
@@ -241,7 +320,6 @@ function renderAlertBanner(data) {
           </div>
           <p class="text-sm text-slate-300 mb-3.5">${alert.summary}</p>
           
-          <!-- Key Contributing Factors Pills (Slide 9) -->
           <div class="flex flex-wrap items-center gap-2 mb-3.5">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Main Factors:</span>
             ${data.factors.map(f => `
@@ -252,7 +330,6 @@ function renderAlertBanner(data) {
             `).join('')}
           </div>
 
-          <!-- Actionable AI Recommendations -->
           <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800">
             <p class="text-xs font-bold uppercase tracking-wider text-sky-400 mb-2 flex items-center gap-1.5">
               <i data-lucide="sparkles" class="w-3.5 h-3.5 text-sky-400"></i> Proactive Decision Support (Early Action):
