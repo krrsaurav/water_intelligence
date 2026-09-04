@@ -1,0 +1,13 @@
+# Python & Database ignores
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.db
+*.sqlite3
+*.log
+.DS_Store
+Thumbs.db
