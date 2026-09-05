@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Water Intelligence — AI Decision Support Platform (SIH 2026)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Water Intelligence — AI-Powered Water Monitoring & Prediction (SIH 2026)</title>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,769 +13,465 @@
       theme: {
         extend: {
           colors: {
-            brand: { 50: '#0c192c', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 900: '#070b14' }
+            brand: {
+              50: '#0c192c',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              900: '#070b14'
+            }
           }
         }
       }
     }
   </script>
 
-  <!-- Chart.js 4 -->
+  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <!-- Leaflet.js GIS Map -->
+  <!-- Leaflet.js CSS & JS CDN -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .glow-cyan { text-shadow: 0 0 16px rgba(14, 165, 233, 0.5); }
-    .card-dark { background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(12px); border: 1px solid rgba(56, 189, 248, 0.15); }
-    .card-dark:hover { border-color: rgba(56, 189, 248, 0.35); }
-    .badge-critical { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
-    .badge-surge { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
-    .badge-high { background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.4); }
-    .badge-moderate { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
-    .badge-low { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
-    #map { height: 260px; width: 100%; border-radius: 0.75rem; z-index: 10; }
-    @media print {
-      body * { visibility: hidden; }
-      #printModal, #printModal * { visibility: visible; }
-      #printModal { position: absolute; left: 0; top: 0; width: 100%; background: white; color: black; }
-    }
-  </style>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="min-h-screen bg-[#070b14] text-slate-100 flex flex-col antialiased">
+<body class="min-h-screen flex flex-col antialiased text-slate-100 bg-[#070b14]">
 
-  <!-- ================= TOP HEADER NAVIGATION ================= -->
-  <header class="bg-slate-950/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 shadow-lg shadow-black/40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <!-- ================= PIN LOCK SCREEN MODAL OVERLAY ================= -->
+  <div id="lockModal" class="fixed inset-0 z-[999] flex items-center justify-center bg-[#070b14]/90 backdrop-blur-2xl p-4 transition-all duration-300">
+    <div id="lockCard" class="w-full max-w-sm sm:max-w-md bg-slate-900/95 border border-sky-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-sky-950/50 text-center relative overflow-hidden">
       
-      <!-- Brand & Project Identity -->
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-sky-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/25">
-          <i class="fa-solid fa-droplet text-lg"></i>
+      <!-- Decorative Top Glow -->
+      <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-24 bg-sky-500/20 blur-2xl rounded-full pointer-events-none"></div>
+
+      <!-- Lock Icon Badge -->
+      <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-sky-600 to-blue-500 mx-auto flex items-center justify-center text-white shadow-lg shadow-sky-500/30 mb-3.5 border border-sky-400/40">
+        <i data-lucide="lock" class="w-7 h-7 sm:w-8 sm:h-8"></i>
+      </div>
+
+      <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-sky-950 text-sky-400 border border-sky-500/40 inline-block mb-2">
+        Protected Node · SIH 2026
+      </span>
+
+      <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight glow-text-cyan mb-1">
+        Water Intelligence
+      </h2>
+      <p class="text-xs text-slate-400 mb-5 sm:mb-6">
+        Enter the 4-digit security PIN to access the dashboard.
+      </p>
+
+      <!-- PIN Input Box -->
+      <div class="space-y-3.5 sm:space-y-4">
+        <div class="relative">
+          <input 
+            type="password" 
+            id="pinInput" 
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="4" 
+            placeholder="••••" 
+            autocomplete="off"
+            class="w-full bg-slate-950 border-2 border-slate-700 focus:border-sky-400 rounded-2xl py-3 sm:py-3.5 px-4 text-center text-2xl font-black tracking-[0.5em] text-white focus:outline-none focus:ring-4 focus:ring-sky-500/20 transition shadow-inner"
+          />
         </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="font-black text-lg tracking-tight text-white glow-cyan">WATER INTELLIGENCE</span>
-            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-sky-950 text-sky-400 border border-sky-500/40">SIH 2026</span>
-          </div>
-          <p class="text-[11px] text-slate-400 hidden sm:block">AI Decision-Support & Early Warning Platform • Akansha</p>
+
+        <!-- Error Message -->
+        <p id="pinErrorMsg" class="text-xs font-bold text-rose-400 hidden flex items-center justify-center gap-1.5">
+          <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Incorrect PIN. Try 2026.
+        </p>
+
+        <!-- Unlock Button -->
+        <button 
+          id="unlockBtn" 
+          class="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-slate-950 font-black text-xs sm:text-sm py-3.5 px-6 rounded-2xl shadow-lg shadow-sky-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+        >
+          <i data-lucide="key-round" class="w-4 h-4"></i> Unlock Dashboard
+        </button>
+
+        <div class="pt-1.5">
+          <span class="text-[10px] sm:text-[11px] text-slate-500">Authorized Team & Judge Access Only</span>
         </div>
       </div>
 
-      <!-- Navigation & View Buttons -->
-      <div class="flex items-center gap-2 sm:gap-3">
+    </div>
+  </div>
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-50 shadow-lg shadow-black/40">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-14 sm:h-16 gap-2">
         
-        <!-- Region Selector -->
-        <div class="flex items-center gap-1.5 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
-          <span class="text-xs font-bold text-slate-400 hidden md:inline"><i class="fa-solid fa-location-dot text-sky-400 mr-1"></i>Region:</span>
-          <select id="regionSelect" onchange="onRegionSelectChange(this.value)" class="bg-slate-950 text-sky-300 font-bold text-xs rounded px-2 py-1 outline-none border border-slate-700 cursor-pointer">
-            <option value="REG-01">North Delhi (Delhi NCR)</option>
-            <option value="REG-02">Jaipur District (Rajasthan)</option>
-            <option value="REG-03">Chennai Central (Tamil Nadu)</option>
-            <option value="REG-04">Bengaluru Urban (Karnataka)</option>
-          </select>
+        <!-- Logo & Project Identity -->
+        <div class="flex items-center gap-2 sm:gap-3.5 shrink-0">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-sky-400 via-sky-600 to-blue-700 flex items-center justify-center text-white shadow-md shadow-sky-500/25">
+            <i data-lucide="droplet" class="w-4 h-4 sm:w-5 sm:h-5 fill-white"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-black text-sm sm:text-lg tracking-tight text-white glow-text-cyan">WATER AI</span>
+              <span class="text-[9px] sm:text-[10px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-500/40">SIH</span>
+            </div>
+            <p class="text-[10px] text-slate-400 hidden md:block">Water Monitoring, Prediction & Early Warning</p>
+          </div>
         </div>
 
-        <!-- View Tabs -->
-        <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
-          <button id="btnTabDash" onclick="switchView('dashboard')" class="px-3 py-1 font-bold rounded-lg bg-sky-500 text-slate-950 shadow-md">
-            <i class="fa-solid fa-chart-pie mr-1"></i> Dashboard
+        <!-- Controls: Region Selector, Live Status, Refresh & Lock -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          
+          <!-- Region Dropdown -->
+          <div class="flex items-center bg-slate-900/90 p-1 sm:p-1.5 rounded-xl border border-slate-700/80 shadow-inner">
+            <select id="regionSelect" class="bg-slate-950 text-[11px] sm:text-sm font-bold text-sky-400 py-1 px-2 sm:px-3 rounded-lg border border-slate-800 focus:ring-2 focus:ring-sky-500 cursor-pointer outline-none max-w-[130px] sm:max-w-none truncate">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+
+          <!-- Live Refresh Button -->
+          <button id="btnManualRefresh" class="p-1.5 sm:p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-sky-400 border border-slate-800 transition active:scale-95 flex items-center gap-1.5 text-xs font-bold" title="Fetch Fresh Live Telemetry">
+            <i id="refreshIcon" data-lucide="refresh-cw" class="w-4 h-4 text-sky-400"></i>
+            <span class="hidden md:inline">Fetch Live</span>
           </button>
-          <button id="btnTabCompare" onclick="switchView('compare')" class="px-3 py-1 font-bold rounded-lg text-slate-400 hover:text-white">
-            <i class="fa-solid fa-code-compare mr-1"></i> Compare
+
+          <!-- Live Streaming Auto-Update Toggle -->
+          <div class="hidden sm:flex items-center gap-2 bg-slate-900/80 px-2.5 py-1.5 rounded-xl border border-slate-800">
+            <span class="relative flex h-2 w-2">
+              <span id="livePulsePing" class="animate-live-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span id="livePulseDot" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span id="liveStatusText" class="text-[11px] font-bold text-emerald-300">Live Stream (6s)</span>
+            <label class="relative inline-flex items-center cursor-pointer ml-1" title="Toggle Live Telemetry Auto-Stream">
+              <input type="checkbox" id="autoStreamToggle" class="sr-only peer" checked>
+              <div class="w-7 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-800 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-white"></div>
+            </label>
+          </div>
+
+          <!-- Re-Lock Screen Button -->
+          <button id="btnLockScreen" class="p-1.5 sm:p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-sky-400 border border-slate-800 transition active:scale-95 shrink-0" title="Lock Dashboard Screen">
+            <i data-lucide="lock" class="w-4 h-4"></i>
           </button>
-          <button id="btnTabDB" onclick="switchView('database')" class="px-3 py-1 font-bold rounded-lg text-slate-400 hover:text-white">
-            <i class="fa-solid fa-database mr-1"></i> SQL Inspector
-          </button>
+
         </div>
 
       </div>
+    </div>
 
+    <!-- Sub-Navbar Navigation Tabs -->
+    <div class="border-t border-slate-800/80 bg-slate-950/50 backdrop-blur">
+      <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 flex space-x-1.5 overflow-x-auto no-scrollbar py-1">
+        <button data-tab-target="dashboard-tab" class="tab-btn active-tab px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-sky-400 text-sky-400 flex items-center gap-1.5 rounded-lg shrink-0">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> Dashboard
+        </button>
+        <button data-tab-target="map-view-tab" class="tab-btn px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 rounded-lg shrink-0">
+          <i data-lucide="map" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> Risk Map
+        </button>
+        <button data-tab-target="analytics-tab" class="tab-btn px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 rounded-lg shrink-0">
+          <i data-lucide="line-chart" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> Trends
+        </button>
+        <button data-tab-target="architecture-tab" class="tab-btn px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 rounded-lg shrink-0">
+          <i data-lucide="git-merge" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> Team & Arch
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- ================= VIEW 1: MAIN DASHBOARD ================= -->
-  <main id="viewDashboard" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1">
+  <!-- ================= MAIN CONTENT AREA ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
-    <!-- Top Action Card: Live Weather Simulator & Telemetry Actions -->
-    <div class="card-dark rounded-2xl p-5 shadow-xl relative overflow-hidden">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        
-        <div>
-          <div class="flex items-center gap-3">
-            <h2 id="regionTitle" class="text-2xl font-black text-white tracking-tight">North Delhi</h2>
-            <span id="badgeCurrentRisk" class="badge-high text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
-              HIGH RISK
-            </span>
-          </div>
-          <p id="regionSubtitle" class="text-xs text-slate-400 mt-1">
-            Delhi NCR • Baseline Population: 4.2M • Central Yamuna Catchment
-          </p>
-        </div>
+    <!-- ================= TAB 1: LIVE DASHBOARD ================= -->
+    <div id="dashboard-tab" class="tab-panel space-y-4 sm:space-y-6">
 
-        <!-- Simulator Toolbar -->
-        <div class="flex flex-wrap items-center gap-2 bg-slate-950/80 p-2.5 rounded-xl border border-sky-500/20">
-          <span class="text-xs font-bold text-sky-400 flex items-center gap-1 mr-1">
-            <i class="fa-solid fa-sliders"></i> Simulator:
-          </span>
-          
-          <button onclick="simulateScenario('heavy_rain')" class="text-xs px-2.5 py-1.5 rounded-lg bg-blue-950 hover:bg-blue-900 text-blue-300 border border-blue-500/30 transition flex items-center gap-1 font-semibold">
-            <i class="fa-solid fa-cloud-showers-heavy"></i> Heavy Rain (55mm)
-          </button>
-
-          <button onclick="simulateScenario('heatwave')" class="text-xs px-2.5 py-1.5 rounded-lg bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-500/30 transition flex items-center gap-1 font-semibold">
-            <i class="fa-solid fa-temperature-high"></i> Heatwave (0mm)
-          </button>
-
-          <button onclick="fetchLiveOpenMeteo()" class="text-xs px-2.5 py-1.5 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1 font-semibold">
-            <i class="fa-solid fa-satellite-dish"></i> Fetch Live Open-Meteo
-          </button>
-
-          <button onclick="openCustomSimModal()" class="text-xs px-2.5 py-1.5 rounded-lg bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/30 transition flex items-center gap-1 font-semibold">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Custom Sliders
-          </button>
-
-          <button onclick="resetToBaseline()" class="text-xs px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Reset">
-            <i class="fa-solid fa-rotate-left"></i>
-          </button>
-        </div>
-
-      </div>
-
-      <!-- Simulation Notification Banner -->
-      <div id="simBanner" class="hidden mt-4 p-2.5 rounded-xl bg-sky-950/60 border border-sky-500/40 text-xs flex items-center justify-between">
-        <span class="text-sky-300 font-medium">
-          <i class="fa-solid fa-flask text-sky-400 mr-1.5"></i> <span id="simDesc">Simulation Active</span>
-        </span>
-        <span class="text-[11px] text-sky-400/80 font-mono">Reactive AI Water Balance Engine</span>
-      </div>
-    </div>
-
-    <!-- 1. Top 4 KPI Metrics -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      
-      <!-- KPI 1: Reservoir Storage -->
-      <div class="card-dark rounded-xl p-4 shadow-lg flex flex-col justify-between">
-        <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider">
-          <span>Reservoir Storage</span>
-          <i class="fa-solid fa-water text-sky-400"></i>
-        </div>
-        <div class="my-2">
-          <span id="valReservoir" class="text-3xl font-black text-white">41.5%</span>
-        </div>
-        <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-          <div id="barReservoir" class="bg-sky-500 h-1.5 rounded-full transition-all duration-500" style="width: 41.5%"></div>
-        </div>
-      </div>
-
-      <!-- KPI 2: Water Trend & Trajectory -->
-      <div class="card-dark rounded-xl p-4 shadow-lg flex flex-col justify-between">
-        <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider">
-          <span>Water Trend</span>
-          <i id="iconTrend" class="fa-solid fa-arrow-trend-down text-rose-400"></i>
-        </div>
-        <div class="my-2">
-          <span id="valTrend" class="text-2xl font-black text-rose-400">DECLINING</span>
-        </div>
-        <p class="text-[11px] text-slate-500">Inflow vs Depletion Rate</p>
-      </div>
-
-      <!-- KPI 3: Rainfall Telemetry -->
-      <div class="card-dark rounded-xl p-4 shadow-lg flex flex-col justify-between">
-        <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider">
-          <span>Rainfall Telemetry</span>
-          <i class="fa-solid fa-cloud-rain text-blue-400"></i>
-        </div>
-        <div class="my-2 flex items-baseline gap-2">
-          <span id="valRainfall" class="text-3xl font-black text-white">0.8 mm</span>
-          <span id="valRainDev" class="text-xs font-bold text-rose-400">-24% dev</span>
-        </div>
-        <p class="text-[11px] text-slate-500">Meteorological Observation</p>
-      </div>
-
-      <!-- KPI 4: 7-Day Trajectory -->
-      <div class="card-dark rounded-xl p-4 shadow-lg flex flex-col justify-between">
-        <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider">
-          <span>7-Day Inflow Forecast</span>
-          <i class="fa-solid fa-calendar-days text-amber-400"></i>
-        </div>
-        <div class="my-2">
-          <span id="valForecast7d" class="text-2xl font-black text-amber-400">DECREASING</span>
-        </div>
-        <p class="text-[11px] text-slate-500">Predicted Balance</p>
-      </div>
-
-    </div>
-
-    <!-- 2. Charts & GIS Map Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- Chart 1: 4-Day AI Water Availability Bar Chart -->
-      <div class="card-dark rounded-xl p-5 shadow-lg flex flex-col">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h3 class="text-sm font-bold text-white uppercase tracking-wider">4-Day Projected Availability</h3>
-            <p class="text-xs text-slate-400">Reactive AI water balance output</p>
-          </div>
-          <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-500/30">AI Model</span>
-        </div>
-        <div class="relative flex-1 min-h-[220px]">
-          <canvas id="barForecastChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Chart 2: 14-Day Dual-Axis Time Series -->
-      <div class="card-dark rounded-xl p-5 shadow-lg flex flex-col">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Historical Storage & Rain</h3>
-            <p class="text-xs text-slate-400">14-day storage vs precipitation</p>
-          </div>
-          <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">Telemetry</span>
-        </div>
-        <div class="relative flex-1 min-h-[220px]">
-          <canvas id="lineTrendChart"></canvas>
-        </div>
-      </div>
-
-      <!-- GIS Map -->
-      <div class="card-dark rounded-xl p-5 shadow-lg flex flex-col">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Geospatial Risk Map</h3>
-            <p class="text-xs text-slate-400">Click marker to inspect region</p>
-          </div>
-          <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/30">GIS View</span>
-        </div>
-        <div id="map" class="flex-1 min-h-[220px]"></div>
-      </div>
-
-    </div>
-
-    <!-- 3. Dynamic Early Warning Advisory Box with Export Report Button -->
-    <div id="alertContainer" class="rounded-2xl p-5 border shadow-xl transition-all duration-300 bg-rose-950/40 border-rose-500/40">
-      <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
-        
-        <div class="space-y-2 flex-1">
-          <div class="flex items-center gap-2.5">
-            <span id="alertPulseDot" class="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
-            <h3 id="alertTitle" class="text-base font-black text-white">Water Shortage Risk Detected — North Delhi</h3>
-          </div>
-          <p id="alertRecommendation" class="text-xs text-slate-300 leading-relaxed font-medium">
-            Issue advisory for restricted non-essential supply; activate backup tube-well booster stations.
-          </p>
-          
-          <!-- Export Button -->
-          <div class="pt-2">
-            <button onclick="openPrintModal()" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs text-sky-400 font-bold border border-sky-500/30 flex items-center gap-1.5 transition">
-              <i class="fa-solid fa-file-pdf"></i> Export Municipal Advisory Bulletin (Print)
-            </button>
-          </div>
-        </div>
-
-        <div class="bg-slate-900/90 rounded-xl p-3.5 border border-slate-800 md:min-w-[300px]">
-          <span class="text-[11px] font-black text-slate-400 uppercase tracking-wider block mb-2">
-            <i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1.5"></i> Triggering Factors
-          </span>
-          <ul id="alertFactorsList" class="text-xs space-y-1.5 text-slate-300 font-medium"></ul>
-        </div>
-
-      </div>
-    </div>
-
-  </main>
-
-  <!-- ================= VIEW 2: MULTI-REGION COMPARISON ================= -->
-  <main id="viewCompare" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1">
-    <div class="card-dark rounded-2xl p-6 shadow-xl space-y-6">
-      
-      <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 class="text-xl font-black text-white">Multi-Region Water Stress Comparison</h2>
-          <p class="text-xs text-slate-400">Compare hydrological resilience and risk trajectories side-by-side</p>
-        </div>
-        <div class="flex items-center gap-3">
-          <select id="compReg1" onchange="updateComparison()" class="bg-slate-900 text-sky-300 font-bold text-xs rounded px-2.5 py-1.5 border border-slate-700">
-            <option value="REG-01" selected>North Delhi</option>
-            <option value="REG-02">Jaipur District</option>
-            <option value="REG-03">Chennai Central</option>
-            <option value="REG-04">Bengaluru Urban</option>
-          </select>
-          <span class="text-xs font-bold text-slate-500">VS</span>
-          <select id="compReg2" onchange="updateComparison()" class="bg-slate-900 text-emerald-300 font-bold text-xs rounded px-2.5 py-1.5 border border-slate-700">
-            <option value="REG-01">North Delhi</option>
-            <option value="REG-02">Jaipur District</option>
-            <option value="REG-03">Chennai Central</option>
-            <option value="REG-04" selected>Bengaluru Urban</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Comparison Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <!-- Region 1 Box -->
-        <div class="bg-slate-900/90 rounded-xl p-5 border border-sky-500/30 space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 id="c1Name" class="text-lg font-black text-white">North Delhi</h3>
-            <span id="c1Status" class="badge-high text-xs font-bold px-2.5 py-0.5 rounded-full">HIGH RISK</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 text-center text-xs">
-            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
-              <span class="text-slate-400 block text-[10px]">Reservoir</span>
-              <span id="c1Res" class="text-white font-bold text-sm">41.5%</span>
-            </div>
-            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
-              <span class="text-slate-400 block text-[10px]">Rainfall</span>
-              <span id="c1Rain" class="text-white font-bold text-sm">0.8 mm</span>
-            </div>
-            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
-              <span class="text-slate-400 block text-[10px]">4D Outlook</span>
-              <span id="c1Outlook" class="text-rose-400 font-bold text-sm">25.8%</span>
-            </div>
-          </div>
-          <p id="c1Advisory" class="text-xs text-slate-300 bg-slate-950 p-3 rounded-lg border border-slate-800"></p>
-        </div>
-
-        <!-- Region 2 Box -->
-        <div class="bg-slate-900/90 rounded-xl p-5 border border-emerald-500/30 space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 id="c2Name" class="text-lg font-black text-white">Bengaluru Urban</h3>
-            <span id="c2Status" class="badge-low text-xs font-bold px-2.5 py-0.5 rounded-full">LOW RISK</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 text-center text-xs">
-            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
-              <span class="text-slate-400 block text-[10px]">Reservoir</span>
-              <span id="c2Res" class="text-white font-bold text-sm">82.0%</span>
-            </div>
-            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
-              <span class="text-slate-400 block text-[10px]">Rainfall</span>
-              <span id="c2Rain" class="text-white font-bold text-sm">8.5 mm</span>
-            </div>
-            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
-              <span class="text-slate-400 block text-[10px]">4D Outlook</span>
-              <span id="c2Outlook" class="text-emerald-400 font-bold text-sm">89.0%</span>
-            </div>
-          </div>
-          <p id="c2Advisory" class="text-xs text-slate-300 bg-slate-950 p-3 rounded-lg border border-slate-800"></p>
-        </div>
-
-      </div>
-
-    </div>
-  </main>
-
-  <!-- ================= VIEW 3: SQL DATA INSPECTOR ================= -->
-  <main id="viewDatabase" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1">
-    <div class="card-dark rounded-2xl p-6 shadow-xl space-y-6">
-      
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <!-- Header & Active Region Status Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 glass-card p-3.5 sm:p-5 rounded-2xl border border-slate-800">
         <div>
           <div class="flex items-center gap-2">
-            <h2 class="text-xl font-black text-white tracking-tight">Database & Storage Layer Inspector</h2>
-            <span class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-400 border border-indigo-500/30">
-              Managed by Akansha
+            <h2 id="regionTitle" class="text-xl sm:text-2xl font-black text-white tracking-tight">Delhi NCR</h2>
+            <span class="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded font-black uppercase bg-sky-950 text-sky-400 border border-sky-500/30 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Dynamic Telemetry
             </span>
           </div>
-          <p class="text-xs text-slate-400 mt-1">Live SQLite Schema Inspector (`water_intelligence.db`)</p>
+          <div class="flex flex-wrap items-center gap-2 mt-0.5">
+            <p id="regionSubtitle" class="text-[11px] sm:text-xs text-slate-400">Monitoring Zone: Delhi · Real-time Sensor Ingestion</p>
+            <span class="text-slate-600 hidden sm:inline">•</span>
+            <span id="lastUpdatedBadge" class="text-[10px] font-bold text-sky-300 bg-sky-950/70 px-2 py-0.5 rounded border border-sky-500/30">
+              Updated: Just now
+            </span>
+          </div>
         </div>
 
-        <div class="flex items-center gap-2">
-          <label for="tableSelect" class="text-xs font-bold text-slate-400">Select Table:</label>
-          <select id="tableSelect" onchange="loadTableRecords(this.value)" class="bg-slate-900 text-sky-400 font-mono text-xs rounded-lg px-3 py-1.5 border border-slate-700 outline-none">
-            <option value="regions">regions (Metadata & GIS)</option>
-            <option value="weather_metrics">weather_metrics (Rainfall & Temp)</option>
-            <option value="water_availability">water_availability (Reservoirs & Wells)</option>
-            <option value="water_consumption">water_consumption (Municipal MLD Demand)</option>
-            <option value="prediction_alerts">prediction_alerts (AI Model Predictions)</option>
-          </select>
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Live Status Badge -->
+          <div id="statusBadge" class="px-3 py-1.5 rounded-xl font-black text-xs sm:text-sm tracking-wider border flex items-center gap-1.5 bg-orange-950/80 text-orange-300 border-orange-500/40">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> HIGH RISK
+          </div>
+
+          <!-- Simulation Button -->
+          <button id="btnTriggerSim" class="px-3 py-1.5 text-xs font-black rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-slate-950 shadow-md shadow-sky-500/20 transition flex items-center gap-1 active:scale-95">
+            <i data-lucide="zap" class="w-3.5 h-3.5 fill-slate-950"></i> <span class="hidden xs:inline">Simulate</span> AI Shift
+          </button>
         </div>
       </div>
 
-      <!-- Quick Metrics -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
-          <span class="text-[10px] font-black uppercase text-slate-500">Data Quality Score</span>
-          <div class="text-xl font-black text-emerald-400 mt-1">99.8% Passed</div>
-          <p class="text-[11px] text-slate-400">Zero null entries, automated range validation</p>
+      <!-- 4 Top KPI Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        
+        <!-- KPI 1 -->
+        <div class="glass-card p-3 sm:p-4 rounded-2xl">
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">Water Trend</span>
+            <i data-lucide="trending-down" class="w-3.5 h-3.5 text-rose-400"></i>
+          </div>
+          <div id="trendValue" class="text-base sm:text-xl font-black text-rose-400 flex items-center gap-1 transition-all">
+            ↓ Declining
+          </div>
+          <p id="trendDelta" class="text-[10px] sm:text-xs text-slate-400 mt-0.5">-14% baseline</p>
         </div>
-        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
-          <span class="text-[10px] font-black uppercase text-slate-500">Primary Key Indexing</span>
-          <div class="text-xl font-black text-sky-400 mt-1">Composite (Region + Date)</div>
-          <p class="text-[11px] text-slate-400">Fast O(log N) temporal lookups</p>
+
+        <!-- KPI 2 -->
+        <div class="glass-card p-3 sm:p-4 rounded-2xl">
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">Forecast (7D)</span>
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-sky-400"></i>
+          </div>
+          <div id="forecast7dValue" class="text-base sm:text-xl font-black text-amber-400 truncate transition-all">
+            Decreasing
+          </div>
+          <p id="forecast7dNote" class="text-[10px] sm:text-xs text-slate-400 mt-0.5 truncate">Dry spell ahead</p>
         </div>
-        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
-          <span class="text-[10px] font-black uppercase text-slate-500">Reactive AI Triggers</span>
-          <div class="text-xl font-black text-indigo-400 mt-1">Dynamic Water Balance</div>
-          <p class="text-[11px] text-slate-400">Real-time alerts when weather changes</p>
+
+        <!-- KPI 3 -->
+        <div class="glass-card p-3 sm:p-4 rounded-2xl">
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">Reservoir</span>
+            <i data-lucide="waves" class="w-3.5 h-3.5 text-sky-400"></i>
+          </div>
+          <div id="storageValue" class="text-base sm:text-xl font-black text-white transition-all">
+            34.2%
+          </div>
+          <p id="storageNote" class="text-[10px] sm:text-xs text-slate-400 mt-0.5 truncate">34% of Full Cap</p>
+        </div>
+
+        <!-- KPI 4 -->
+        <div class="glass-card p-3 sm:p-4 rounded-2xl">
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">Groundwater</span>
+            <i data-lucide="arrow-down-to-line" class="w-3.5 h-3.5 text-rose-400"></i>
+          </div>
+          <div id="groundwaterValue" class="text-base sm:text-xl font-black text-white transition-all">
+            38.5 m
+          </div>
+          <p id="groundwaterNote" class="text-[10px] sm:text-xs text-slate-400 mt-0.5 truncate">Depleting (-1.2m)</p>
+        </div>
+
+      </div>
+
+      <!-- Main Visualisation Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+        
+        <!-- Left: 4-Day Forecast Bar Chart -->
+        <div class="lg:col-span-7 glass-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="font-black text-xs sm:text-sm uppercase tracking-wider text-white flex items-center gap-1.5">
+                  <i data-lucide="bar-chart-3" class="w-4 h-4 text-sky-400"></i> 4-Day Availability Forecast
+                </h3>
+                <p class="text-[11px] text-slate-400 mt-0.5">Machine learning live simulation model</p>
+              </div>
+              <span class="text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-500/30">AI Dynamic Output</span>
+            </div>
+
+            <div class="relative h-56 sm:h-64 w-full">
+              <canvas id="forecastChart"></canvas>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-1.5 text-[10px] sm:text-xs text-slate-400">
+            <span class="font-bold text-slate-300">Risk Thresholds:</span>
+            <div class="flex items-center gap-2 sm:gap-3">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> >50% Low</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span> 40-50% Mod</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-400"></span> 30-40% High</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-400"></span> &lt;30% Crit</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Risk Factor Donut -->
+        <div class="lg:col-span-5 glass-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2 sm:mb-3">
+              <h3 class="font-black text-xs sm:text-sm uppercase tracking-wider text-white flex items-center gap-1.5">
+                <i data-lucide="pie-chart" class="w-4 h-4 text-sky-400"></i> Live Risk Factor Impact
+              </h3>
+              <span class="text-[10px] text-slate-400">Weights</span>
+            </div>
+            
+            <div class="relative h-44 sm:h-48 w-full">
+              <canvas id="factorDonut"></canvas>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mt-2.5 pt-2.5 border-t border-slate-800 text-center">
+            <div class="p-2 sm:p-2.5 bg-slate-900/90 rounded-xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">Daily Consumption</span>
+              <span id="consumptionValue" class="text-xs sm:text-sm font-black text-white">935 MLD</span>
+            </div>
+            <div class="p-2 sm:p-2.5 bg-slate-900/90 rounded-xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">Rainfall Anomaly</span>
+              <span id="rainfallAnomalyValue" class="text-xs sm:text-sm font-black text-rose-400">-42% vs Norm</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Proactive Early Warning Alert Banner -->
+      <div id="alertBannerContainer"></div>
+
+    </div>
+
+    <!-- ================= TAB 2: GEOGRAPHIC RISK MAP ================= -->
+    <div id="map-view-tab" class="tab-panel hidden space-y-3 sm:space-y-4">
+      <div class="glass-card p-3.5 sm:p-5 rounded-2xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-3">
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-white tracking-tight flex items-center gap-1.5">
+              <i data-lucide="map-pin" class="w-4 h-4 text-sky-400"></i> Regional Risk Map View (India)
+            </h3>
+            <p class="text-[11px] text-slate-400">Tap any marker pin to inspect regional risk telemetry.</p>
+          </div>
+          <div class="flex items-center gap-2 text-[10px] sm:text-xs font-bold text-slate-300">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Low</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Mod</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span> High</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Crit</span>
+          </div>
+        </div>
+
+        <div id="map"></div>
+      </div>
+    </div>
+
+    <!-- ================= TAB 3: INGESTION & AI TRENDS ================= -->
+    <div id="analytics-tab" class="tab-panel hidden space-y-4 sm:space-y-6">
+      
+      <div class="glass-card p-3.5 sm:p-5 rounded-2xl">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="text-sm sm:text-lg font-black text-white tracking-tight flex items-center gap-1.5">
+              <i data-lucide="activity" class="w-4 h-4 text-sky-400"></i> Multi-Signal Ingestion & Trend Analysis
+            </h3>
+            <p class="text-[11px] text-slate-400">Rainfall (mm) vs Consumption (MLD) vs Storage (%)</p>
+          </div>
+        </div>
+
+        <div class="relative h-64 sm:h-80 w-full">
+          <canvas id="historicalChart"></canvas>
         </div>
       </div>
 
-      <!-- Table View -->
-      <div class="border border-slate-800 rounded-xl overflow-hidden max-h-[460px] overflow-y-auto">
-        <table id="dbTable" class="w-full text-left text-xs font-mono">
-          <thead id="dbTableHead" class="bg-slate-900 text-sky-400 sticky top-0 border-b border-slate-800"></thead>
-          <tbody id="dbTableBody" class="divide-y divide-slate-800 text-slate-300"></tbody>
-        </table>
+      <div class="glass-card p-3.5 sm:p-5 rounded-2xl">
+        <h3 class="text-xs sm:text-base font-black text-white mb-2.5 flex items-center gap-1.5">
+          <i data-lucide="sliders" class="w-4 h-4 text-sky-400"></i> Feature Engineering & Anomaly Signals
+        </h3>
+        <div id="factorsListContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5"></div>
       </div>
 
     </div>
+
+    <!-- ================= TAB 4: ARCHITECTURE & TEAM ================= -->
+    <div id="architecture-tab" class="tab-panel hidden space-y-4 sm:space-y-6">
+      
+      <div class="glass-card p-4 sm:p-6 rounded-2xl">
+        <h3 class="text-base sm:text-xl font-black text-white tracking-tight mb-1">Platform 6-Layer Architecture</h3>
+        <p class="text-[11px] text-slate-400 mb-4 sm:mb-6">How data flows from collection to Saurav's frontend dashboard.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-white">
+            <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-500/40">Layer 1</span>
+            <h4 class="font-bold text-xs sm:text-sm mt-1.5 text-white">Input Layer</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">Weather APIs, IMD rainfall feeds, reservoir datasets.</p>
+          </div>
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-white">
+            <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-500/40">Layer 2</span>
+            <h4 class="font-bold text-xs sm:text-sm mt-1.5 text-white">Data Storage (Akansha)</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">SQLite / SQL schema, telemetry records, regional metadata.</p>
+          </div>
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-white">
+            <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-500/40">Layer 3</span>
+            <h4 class="font-bold text-xs sm:text-sm mt-1.5 text-white">Processing (Bhavishya)</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">Python, Pandas, NumPy cleaning, missing value interpolation.</p>
+          </div>
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-white">
+            <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-500/40">Layer 4</span>
+            <h4 class="font-bold text-xs sm:text-sm mt-1.5 text-white">AI / ML Model (Deep)</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">Random Forest / Regression for risk & shortage forecasting.</p>
+          </div>
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-white">
+            <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-500/40">Layer 5</span>
+            <h4 class="font-bold text-xs sm:text-sm mt-1.5 text-white">Application API</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">Flask / FastAPI endpoints dispatching JSON payloads.</p>
+          </div>
+          <div class="p-3 bg-slate-900 text-white border-2 border-sky-400 rounded-xl shadow-lg shadow-sky-500/20">
+            <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-sky-400 text-slate-950">Layer 6 · Saurav</span>
+            <h4 class="font-bold text-xs sm:text-sm mt-1.5 text-sky-300">Presentation Dashboard</h4>
+            <p class="text-[11px] text-slate-300 mt-0.5">HTML, CSS, JavaScript, Chart.js, Leaflet interactive visualisations.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 sm:p-6 rounded-2xl">
+        <h3 class="text-sm sm:text-lg font-black text-white tracking-tight mb-3">Team Responsibilities (SIH 2026)</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
+          <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800">
+            <strong class="text-white font-bold block">Deep</strong>
+            <span class="text-slate-400 text-[11px]">Lead & AI/ML</span>
+          </div>
+          <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800">
+            <strong class="text-white font-bold block">Bhavishya</strong>
+            <span class="text-slate-400 text-[11px]">Python & Data</span>
+          </div>
+          <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800">
+            <strong class="text-white font-bold block">Akansha</strong>
+            <span class="text-slate-400 text-[11px]">Database (SQL)</span>
+          </div>
+          <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800">
+            <strong class="text-white font-bold block">Kanika</strong>
+            <span class="text-slate-400 text-[11px]">Research & Design</span>
+          </div>
+          <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800">
+            <strong class="text-white font-bold block">Hasim</strong>
+            <span class="text-slate-400 text-[11px]">Testing & Support</span>
+          </div>
+          <div class="p-2.5 bg-sky-950/60 border border-sky-500/60 rounded-xl shadow-md">
+            <strong class="text-sky-300 font-bold block">Saurav (You)</strong>
+            <span class="text-sky-400 text-[11px]">Frontend & Charts</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
   </main>
 
-  <!-- ================= MODAL: CUSTOM SLIDERS SIMULATOR ================= -->
-  <div id="customSimModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-sky-500/30 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-sliders text-sky-400"></i> What-If Weather Simulator
-        </h3>
-        <button onclick="closeCustomSimModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+  <footer class="bg-slate-950 border-t border-slate-900 py-3 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-1 text-[11px] text-slate-500 text-center sm:text-left">
+      <div class="flex items-center justify-center gap-1.5">
+        <i data-lucide="droplets" class="w-3.5 h-3.5 text-sky-400"></i>
+        <span><strong>Water Intelligence</strong> — SIH 2026 Dynamic Edition</span>
       </div>
-
-      <div class="space-y-4 text-xs">
-        <div>
-          <div class="flex justify-between text-slate-300 mb-1">
-            <span>Rainfall Simulation:</span>
-            <span id="lblSimRain" class="font-bold text-sky-400">25 mm</span>
-          </div>
-          <input type="range" id="rngRain" min="0" max="80" value="25" oninput="document.getElementById('lblSimRain').textContent = this.value + ' mm'" class="w-full accent-sky-500">
-        </div>
-
-        <div>
-          <div class="flex justify-between text-slate-300 mb-1">
-            <span>Temperature:</span>
-            <span id="lblSimTemp" class="font-bold text-amber-400">34 °C</span>
-          </div>
-          <input type="range" id="rngTemp" min="20" max="48" value="34" oninput="document.getElementById('lblSimTemp').textContent = this.value + ' °C'" class="w-full accent-amber-500">
-        </div>
-
-        <div>
-          <div class="flex justify-between text-slate-300 mb-1">
-            <span>Municipal Demand:</span>
-            <span id="lblSimUsage" class="font-bold text-rose-400">920 MLD</span>
-          </div>
-          <input type="range" id="rngUsage" min="400" max="1500" value="920" step="50" oninput="document.getElementById('lblSimUsage').textContent = this.value + ' MLD'" class="w-full accent-rose-500">
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-2">
-        <button onclick="closeCustomSimModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs">Cancel</button>
-        <button onclick="applyCustomSim()" class="px-4 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold text-xs shadow-lg shadow-sky-500/20">Apply & Recalculate AI</button>
+      <div>
+        <span>Live Dynamic Telemetry Engine (PIN: 2026)</span>
       </div>
     </div>
-  </div>
+  </footer>
 
-  <!-- ================= MODAL: PRINTABLE ADVISORY BULLETIN ================= -->
-  <div id="printModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white text-slate-900 rounded-2xl max-w-2xl w-full p-8 shadow-2xl space-y-6">
-      <div class="border-b-2 border-slate-900 pb-4 flex justify-between items-start">
-        <div>
-          <span class="text-[10px] font-bold tracking-widest text-sky-800 uppercase block">Government of India • Ministry of Jal Shakti</span>
-          <h2 class="text-xl font-black uppercase text-slate-900 mt-1">Water Stress Early Warning Advisory</h2>
-          <p class="text-xs text-slate-600 font-mono">Generated via Water Intelligence AI Platform • Akansha</p>
-        </div>
-        <span class="text-xs font-bold px-3 py-1 rounded bg-rose-100 text-rose-800 border border-rose-300 uppercase">OFFICIAL ADVISORY</span>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4 text-xs">
-        <div><strong>Target Region:</strong> <span id="pRegion">North Delhi</span></div>
-        <div><strong>Risk Assessment Level:</strong> <span id="pRisk" class="font-bold text-rose-700">HIGH RISK</span></div>
-        <div><strong>Current Reservoir Capacity:</strong> <span id="pRes">41.5%</span></div>
-        <div><strong>Rainfall Anomaly:</strong> <span id="pRain">-24% deficit</span></div>
-      </div>
-
-      <div class="border border-slate-200 p-4 rounded-lg bg-slate-50 text-xs space-y-2">
-        <strong class="text-slate-900 block font-bold">Recommended Stakeholder Directive:</strong>
-        <p id="pDirective" class="text-slate-700 leading-relaxed font-serif"></p>
-      </div>
-
-      <div class="flex justify-between items-center pt-4 border-t border-slate-200 text-xs">
-        <button onclick="closePrintModal()" class="px-4 py-2 rounded-lg bg-slate-200 text-slate-800 font-bold">Close</button>
-        <button onclick="window.print()" class="px-5 py-2 rounded-lg bg-slate-900 text-white font-bold flex items-center gap-2"><i class="fa-solid fa-print"></i> Print / Save as PDF</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= SCRIPT & CORE ENGINE ================= -->
-  <script>
-    const DATA_STORE = {
-      "REG-01": {
-        region_name: "North Delhi", state: "Delhi NCR", district: "Central/North", population: 4200000,
-        current_status: "HIGH RISK", water_trend: "DECLINING", forecast_7d: "DECREASING",
-        rainfall_current_mm: 0.8, rainfall_deviation_pct: -24, reservoir_level_pct: 41.5,
-        availability_4days: [{day: "Today", value: 41.5}, {day: "Day 2", value: 36.2}, {day: "Day 3", value: 31.0}, {day: "Day 4", value: 25.8}],
-        alert: { title: "Water Shortage Stress Detected — North Delhi", factors: ["↓ Below Normal Precipitation (0.8mm)", "↑ Demand Exceeding Inflow Rate", "↓ Secondary Storage Levels Dropping"], recommendation: "Issue voluntary conservation advisory to commercial zones; optimize supply scheduling to morning/evening windows." },
-        ts: { dates: ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12", "D13", "Today"], rainfall: [0.5, 0, 1.2, 0, 0, 2.1, 0, 0, 0.8, 0, 0, 1.5, 0, 0.8], reservoir_pct: [52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 42, 41.5, 41.5] }
-      },
-      "REG-02": {
-        region_name: "Jaipur District", state: "Rajasthan", district: "Jaipur", population: 3100000,
-        current_status: "CRITICAL RISK", water_trend: "DECLINING", forecast_7d: "DECREASING",
-        rainfall_current_mm: 0.0, rainfall_deviation_pct: -41, reservoir_level_pct: 28.0,
-        availability_4days: [{day: "Today", value: 28.0}, {day: "Day 2", value: 22.4}, {day: "Day 3", value: 16.8}, {day: "Day 4", value: 11.2}],
-        alert: { title: "Severe Scarcity & Depletion Alert — Jaipur District", factors: ["↓ Extreme Rainfall Deficit (0.0mm)", "↑ Peak Heatwave Evaporation (39°C)", "↑ High Consumption Spike (540 MLD)"], recommendation: "Enforce mandatory non-essential water curbs, mobilize municipal emergency tanker buffer, and activate deep tube-well booster stations." },
-        ts: { dates: ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12", "D13", "Today"], rainfall: [0,0,0,0.2,0,0,0,0.1,0,0,0,0,0,0], reservoir_pct: [38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28.5, 28, 28, 28] }
-      },
-      "REG-03": {
-        region_name: "Chennai Central", state: "Tamil Nadu", district: "Chennai", population: 7100000,
-        current_status: "MODERATE RISK", water_trend: "STABLE", forecast_7d: "STABLE",
-        rainfall_current_mm: 4.5, rainfall_deviation_pct: -6, reservoir_level_pct: 65.0,
-        availability_4days: [{day: "Today", value: 65.0}, {day: "Day 2", value: 64.2}, {day: "Day 3", value: 63.5}, {day: "Day 4", value: 62.8}],
-        alert: { title: "Equilibrium Monitored — Chennai Central", factors: ["→ Moderate Daily Rainfall (4.5mm)", "→ Balanced Supply-to-Demand Ratio", "→ Stable Groundwater Depletion"], recommendation: "Continue weekly reservoir capacity checks and acoustic pipeline inspections." },
-        ts: { dates: ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12", "D13", "Today"], rainfall: [3.2, 1.5, 4, 2.8, 5.1, 3, 1.2, 2.5, 4.2, 3.8, 2, 1.8, 3.5, 4.5], reservoir_pct: [64, 64, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65] }
-      },
-      "REG-04": {
-        region_name: "Bengaluru Urban", state: "Karnataka", district: "Bengaluru", population: 8500000,
-        current_status: "LOW RISK", water_trend: "IMPROVING", forecast_7d: "INCREASING",
-        rainfall_current_mm: 8.5, rainfall_deviation_pct: 14, reservoir_level_pct: 82.0,
-        availability_4days: [{day: "Today", value: 82.0}, {day: "Day 2", value: 84.5}, {day: "Day 3", value: 86.8}, {day: "Day 4", value: 89.0}],
-        alert: { title: "Healthy Water Reserves & Steady Inflow — Bengaluru Urban", factors: ["↑ Favorable Precipitation (8.5mm)", "↑ Sustainable Storage Reserves", "→ Stable Consumption"], recommendation: "No supply rationing needed; maintain rainwater harvesting channels." },
-        ts: { dates: ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12", "D13", "Today"], rainfall: [6.5, 8.2, 5, 9.1, 7.4, 6, 11.2, 8.5, 7, 9.5, 8.1, 10, 7.8, 8.5], reservoir_pct: [76, 77, 78, 79, 80, 80, 81, 81, 82, 82, 82, 82, 82, 82] }
-      }
-    };
-
-    let currentRegion = "REG-01";
-    let barChart = null;
-    let lineChart = null;
-    let map = null;
-
-    function render(data) {
-      document.getElementById("regionTitle").textContent = data.region_name;
-      document.getElementById("regionSubtitle").textContent = `${data.state} • Pop: ${(data.population/1000000).toFixed(1)}M • ${data.district}`;
-      
-      const badge = document.getElementById("badgeCurrentRisk");
-      badge.textContent = data.current_status;
-      badge.className = "text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider ";
-      if (data.current_status.includes("CRITICAL")) badge.className += "badge-critical";
-      else if (data.current_status.includes("SURGE") || data.current_status.includes("FLOOD")) badge.className += "badge-surge";
-      else if (data.current_status.includes("HIGH")) badge.className += "badge-high";
-      else if (data.current_status.includes("MODERATE")) badge.className += "badge-moderate";
-      else badge.className += "badge-low";
-
-      document.getElementById("valReservoir").textContent = data.reservoir_level_pct + "%";
-      document.getElementById("barReservoir").style.width = Math.min(100, Math.max(0, data.reservoir_level_pct)) + "%";
-      document.getElementById("valTrend").textContent = data.water_trend;
-      document.getElementById("valRainfall").textContent = data.rainfall_current_mm + " mm";
-      document.getElementById("valForecast7d").textContent = data.forecast_7d;
-
-      const alertCont = document.getElementById("alertContainer");
-      if (data.current_status.includes("SURGE") || data.current_status.includes("FLOOD")) alertCont.className = "rounded-2xl p-5 border shadow-xl bg-blue-950/40 border-blue-500/40";
-      else if (data.current_status.includes("CRITICAL") || data.current_status.includes("HIGH")) alertCont.className = "rounded-2xl p-5 border shadow-xl bg-rose-950/40 border-rose-500/40";
-      else alertCont.className = "rounded-2xl p-5 border shadow-xl bg-emerald-950/40 border-emerald-500/40";
-
-      document.getElementById("alertTitle").textContent = data.alert.title;
-      document.getElementById("alertRecommendation").textContent = data.alert.recommendation;
-
-      const fList = document.getElementById("alertFactorsList");
-      fList.innerHTML = "";
-      data.alert.factors.forEach(f => {
-        const li = document.createElement("li");
-        li.innerHTML = `<span class="text-sky-400 font-bold">•</span> <span>${f}</span>`;
-        fList.appendChild(li);
-      });
-
-      // Update Bar Chart
-      if (barChart) barChart.destroy();
-      const ctxBar = document.getElementById("barForecastChart").getContext("2d");
-      barChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-          labels: data.availability_4days.map(d => d.day),
-          datasets: [{
-            data: data.availability_4days.map(d => d.value),
-            backgroundColor: data.availability_4days.map(d => d.value <= 25 ? "rgba(239, 68, 68, 0.85)" : (d.value <= 50 ? "rgba(249, 115, 22, 0.85)" : (d.value <= 75 ? "rgba(245, 158, 11, 0.85)" : "rgba(14, 165, 233, 0.85)"))),
-            borderRadius: 8, barThickness: 32
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#94a3b8', callback: v => v + '%' } }, x: { ticks: { color: '#94a3b8' } } } }
-      });
-
-      // Update Line Chart
-      if (lineChart) lineChart.destroy();
-      const ctxLine = document.getElementById("lineTrendChart").getContext("2d");
-      lineChart = new Chart(ctxLine, {
-        type: 'line',
-        data: {
-          labels: data.ts.dates,
-          datasets: [
-            { label: 'Reservoir %', data: data.ts.reservoir_pct, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.1)', fill: true, tension: 0.3, yAxisID: 'y' },
-            { label: 'Rain (mm)', data: data.ts.rainfall, borderColor: '#34d399', backgroundColor: 'rgba(52, 211, 153, 0.8)', type: 'bar', barThickness: 5, yAxisID: 'y1' }
-          ]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1' } } }, scales: { y: { min: 0, max: 100, position: 'left', ticks: { color: '#94a3b8', callback: v => v + '%' } }, y1: { min: 0, max: 20, position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#34d399', callback: v => v + 'mm' } }, x: { ticks: { color: '#94a3b8' } } } }
-      });
-    }
-
-    function onRegionSelectChange(id) {
-      currentRegion = id;
-      document.getElementById("simBanner").classList.add("hidden");
-      render(JSON.parse(JSON.stringify(DATA_STORE[id])));
-      if (map) {
-        const coords = { "REG-01": [28.7, 77.1], "REG-02": [26.9, 75.7], "REG-03": [13.0, 80.2], "REG-04": [12.9, 77.5] };
-        map.setView(coords[id], 6);
-      }
-    }
-
-    function simulateScenario(type) {
-      const banner = document.getElementById("simBanner");
-      const desc = document.getElementById("simDesc");
-      banner.classList.remove("hidden");
-      let d = JSON.parse(JSON.stringify(DATA_STORE[currentRegion]));
-
-      if (type === 'heavy_rain') {
-        desc.textContent = "Simulating +55mm Heavy Precipitation Inflow Event";
-        d.current_status = "SURGE / FLOOD ALERT";
-        d.water_trend = "RAPID INFLOW";
-        d.forecast_7d = "SURGING";
-        d.rainfall_current_mm = 55.0;
-        d.availability_4days = [{day: "Today", value: 45}, {day: "Day 2", value: 68}, {day: "Day 3", value: 89}, {day: "Day 4", value: 100}];
-        d.alert.title = `Urban Inflow & Surface Runoff Warning — ${d.region_name}`;
-        d.alert.factors = ["↑ Heavy Precipitation Event (55.0mm)", "↑ Catchment Runoff Accelerating", "↑ Reservoir Sluice Gates on Alert"];
-        d.alert.recommendation = "Open auxiliary reservoir spillways, issue stormwater urban drainage advisory.";
-      } else {
-        desc.textContent = "Simulating Heatwave Drought (0.0mm rain, 42°C temp)";
-        d.current_status = "CRITICAL RISK";
-        d.water_trend = "DECLINING";
-        d.forecast_7d = "DECREASING";
-        d.rainfall_current_mm = 0.0;
-        d.availability_4days = [{day: "Today", value: 32}, {day: "Day 2", value: 24}, {day: "Day 3", value: 17}, {day: "Day 4", value: 9}];
-        d.alert.title = `Severe Scarcity & Depletion Alert — ${d.region_name}`;
-        d.alert.factors = ["↓ Zero Precipitation Recorded", "↑ Extreme Evaporation", "↑ Demand Spike"];
-        d.alert.recommendation = "Enforce mandatory non-essential water curbs, mobilize municipal emergency tanker buffer.";
-      }
-      render(d);
-    }
-
-    function fetchLiveOpenMeteo() {
-      const banner = document.getElementById("simBanner");
-      const desc = document.getElementById("simDesc");
-      banner.classList.remove("hidden");
-      desc.textContent = "Live Open-Meteo Satellite Feed Synced: Delhi Telemetry (28.4°C, 0.0mm rain). AI evaluated.";
-      let d = JSON.parse(JSON.stringify(DATA_STORE[currentRegion]));
-      render(d);
-    }
-
-    function openCustomSimModal() { document.getElementById("customSimModal").classList.remove("hidden"); }
-    function closeCustomSimModal() { document.getElementById("customSimModal").classList.add("hidden"); }
-
-    function applyCustomSim() {
-      const rain = parseFloat(document.getElementById("rngRain").value);
-      const temp = parseFloat(document.getElementById("rngTemp").value);
-      const usage = parseFloat(document.getElementById("rngUsage").value);
-      closeCustomSimModal();
-
-      const banner = document.getElementById("simBanner");
-      const desc = document.getElementById("simDesc");
-      banner.classList.remove("hidden");
-      desc.textContent = `Custom Scenario: Rain ${rain}mm | Temp ${temp}°C | Demand ${usage} MLD`;
-
-      let d = JSON.parse(JSON.stringify(DATA_STORE[currentRegion]));
-      d.rainfall_current_mm = rain;
-      
-      if (rain >= 40) {
-        d.current_status = "SURGE / FLOOD ALERT";
-        d.water_trend = "RAPID INFLOW";
-        d.forecast_7d = "SURGING";
-        d.availability_4days = [{day: "Today", value: 45}, {day: "Day 2", value: 65}, {day: "Day 3", value: 85}, {day: "Day 4", value: 100}];
-      } else if (rain < 2 && temp > 36) {
-        d.current_status = "CRITICAL RISK";
-        d.water_trend = "DECLINING";
-        d.forecast_7d = "DECREASING";
-        d.availability_4days = [{day: "Today", value: 30}, {day: "Day 2", value: 22}, {day: "Day 3", value: 15}, {day: "Day 4", value: 8}];
-      } else {
-        d.current_status = "MODERATE RISK";
-        d.water_trend = "STABLE";
-        d.forecast_7d = "STABLE";
-      }
-      render(d);
-    }
-
-    function resetToBaseline() { onRegionSelectChange(currentRegion); }
-
-    function switchView(v) {
-      document.getElementById("viewDashboard").classList.add("hidden");
-      document.getElementById("viewCompare").classList.add("hidden");
-      document.getElementById("viewDatabase").classList.add("hidden");
-      
-      document.getElementById("btnTabDash").className = "px-3 py-1 font-bold rounded-lg text-slate-400 hover:text-white";
-      document.getElementById("btnTabCompare").className = "px-3 py-1 font-bold rounded-lg text-slate-400 hover:text-white";
-      document.getElementById("btnTabDB").className = "px-3 py-1 font-bold rounded-lg text-slate-400 hover:text-white";
-
-      if (v === 'dashboard') {
-        document.getElementById("viewDashboard").classList.remove("hidden");
-        document.getElementById("btnTabDash").className = "px-3 py-1 font-bold rounded-lg bg-sky-500 text-slate-950 shadow-md";
-      } else if (v === 'compare') {
-        document.getElementById("viewCompare").classList.remove("hidden");
-        document.getElementById("btnTabCompare").className = "px-3 py-1 font-bold rounded-lg bg-sky-500 text-slate-950 shadow-md";
-        updateComparison();
-      } else {
-        document.getElementById("viewDatabase").classList.remove("hidden");
-        document.getElementById("btnTabDB").className = "px-3 py-1 font-bold rounded-lg bg-sky-500 text-slate-950 shadow-md";
-        loadTableRecords("regions");
-      }
-    }
-
-    function updateComparison() {
-      const r1 = DATA_STORE[document.getElementById("compReg1").value];
-      const r2 = DATA_STORE[document.getElementById("compReg2").value];
-
-      document.getElementById("c1Name").textContent = r1.region_name;
-      document.getElementById("c1Status").textContent = r1.current_status;
-      document.getElementById("c1Res").textContent = r1.reservoir_level_pct + "%";
-      document.getElementById("c1Rain").textContent = r1.rainfall_current_mm + " mm";
-      document.getElementById("c1Outlook").textContent = r1.availability_4days[3].value + "%";
-      document.getElementById("c1Advisory").textContent = r1.alert.recommendation;
-
-      document.getElementById("c2Name").textContent = r2.region_name;
-      document.getElementById("c2Status").textContent = r2.current_status;
-      document.getElementById("c2Res").textContent = r2.reservoir_level_pct + "%";
-      document.getElementById("c2Rain").textContent = r2.rainfall_current_mm + " mm";
-      document.getElementById("c2Outlook").textContent = r2.availability_4days[3].value + "%";
-      document.getElementById("c2Advisory").textContent = r2.alert.recommendation;
-    }
-
-    function openPrintModal() {
-      const d = DATA_STORE[currentRegion];
-      document.getElementById("pRegion").textContent = `${d.region_name} (${d.state})`;
-      document.getElementById("pRisk").textContent = d.current_status;
-      document.getElementById("pRes").textContent = d.reservoir_level_pct + "%";
-      document.getElementById("pRain").textContent = d.rainfall_current_mm + " mm (" + d.rainfall_deviation_pct + "% anomaly)";
-      document.getElementById("pDirective").textContent = d.alert.recommendation;
-      document.getElementById("printModal").classList.remove("hidden");
-    }
-
-    function closePrintModal() { document.getElementById("printModal").classList.add("hidden"); }
-
-    function loadTableRecords(tbl) {
-      const head = document.getElementById("dbTableHead");
-      const body = document.getElementById("dbTableBody");
-      head.innerHTML = "<tr><th class='p-3'>ID</th><th class='p-3'>Name</th><th class='p-3'>State</th><th class='p-3'>Population</th></tr>";
-      body.innerHTML = `
-        <tr class='hover:bg-slate-900/60'><td class='p-3'>REG-01</td><td class='p-3'>North Delhi</td><td class='p-3'>Delhi NCR</td><td class='p-3'>4,200,000</td></tr>
-        <tr class='hover:bg-slate-900/60'><td class='p-3'>REG-02</td><td class='p-3'>Jaipur District</td><td class='p-3'>Rajasthan</td><td class='p-3'>3,100,000</td></tr>
-        <tr class='hover:bg-slate-900/60'><td class='p-3'>REG-03</td><td class='p-3'>Chennai Central</td><td class='p-3'>Tamil Nadu</td><td class='p-3'>7,100,000</td></tr>
-        <tr class='hover:bg-slate-900/60'><td class='p-3'>REG-04</td><td class='p-3'>Bengaluru Urban</td><td class='p-3'>Karnataka</td><td class='p-3'>8,500,000</td></tr>
-      `;
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      map = L.map('map', { zoomControl: false }).setView([22.5, 78.5], 4);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-      
-      const locs = { "REG-01": [28.7, 77.1], "REG-02": [26.9, 75.7], "REG-03": [13.0, 80.2], "REG-04": [12.9, 77.5] };
-      Object.keys(locs).forEach(k => {
-        L.circleMarker(locs[k], { radius: 7, fillColor: '#38bdf8', color: '#fff', weight: 2, fillOpacity: 0.9 }).addTo(map)
-          .bindPopup(`<button onclick="onRegionSelectChange('${k}')" style="color:#0284c7; font-weight:bold;">Select</button>`);
-      });
-
-      render(DATA_STORE["REG-01"]);
-    });
-  </script>
+  <script src="js/mockData.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
