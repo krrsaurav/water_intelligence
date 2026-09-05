@@ -1,5 +1,5 @@
 /**
- * Water Intelligence - Main Application Controller (Dark Blue & Black Edition + PIN Lock)
+ * Water Intelligence - Main Application Controller (Dynamic Live Telemetry Edition)
  * Prepared for SIH 2026 - Saurav (Frontend, Dashboard & Data Visualisation)
  */
 
@@ -10,8 +10,10 @@ const state = {
   currentRegionKey: "delhi",
   isLiveApiMode: false,
   backendApiUrl: "http://127.0.0.1:5000/api/water-intelligence",
-  data: REGION_DATA,
-  isUnlocked: false
+  data: JSON.parse(JSON.stringify(REGION_DATA)), // Clone deep copy for dynamic mutations
+  isUnlocked: false,
+  autoStreamInterval: null,
+  isAutoStreamActive: true
 };
 
 // Expose selectRegion globally for Leaflet map popups
@@ -32,7 +34,7 @@ window.lockDashboard = function() {
   const lockModal = document.getElementById("lockModal");
   if (lockModal) {
     lockModal.classList.remove("hidden");
-    lockModal.classList.remove("opacity-0", "pointer-events-none");
+    lockModal.classList.remove("opacity-0");
   }
   const pinInput = document.getElementById("pinInput");
   if (pinInput) {
@@ -83,6 +85,9 @@ window.unlockDashboard = function() {
   }
 };
 
+/**
+ * Main DOM Content Loaded Event Listener
+ */
 document.addEventListener("DOMContentLoaded", () => {
   if (window.lucide) {
     lucide.createIcons();
@@ -98,8 +103,10 @@ document.addEventListener("DOMContentLoaded", () => {
     renderDashboard(selectedKey);
   });
 
+  applyLiveTelemetryJitter(state.currentRegionKey, false);
   renderDashboard(state.currentRegionKey);
   setupEventListeners();
+  startLiveAutoStream();
 });
 
 function setupLockScreen() {
@@ -163,20 +170,38 @@ function setupEventListeners() {
     });
   });
 
-  const apiModeToggle = document.getElementById("apiModeToggle");
-  if (apiModeToggle) {
-    apiModeToggle.addEventListener("change", async (e) => {
-      state.isLiveApiMode = e.target.checked;
-      const statusBadge = document.getElementById("apiStatusBadge");
-      
-      if (state.isLiveApiMode) {
-        statusBadge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping mr-1.5"></span> Live API: Polling Backend`;
-        statusBadge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-950/80 text-emerald-300 flex items-center border border-emerald-500/40 shadow-xs";
-        await fetchLiveBackendData(state.currentRegionKey);
+  const btnManualRefresh = document.getElementById("btnManualRefresh");
+  if (btnManualRefresh) {
+    btnManualRefresh.addEventListener("click", () => {
+      const icon = document.getElementById("refreshIcon");
+      if (icon) {
+        icon.classList.remove("spinning-icon");
+        void icon.offsetWidth;
+        icon.classList.add("spinning-icon");
+      }
+      applyLiveTelemetryJitter(state.currentRegionKey, true);
+      renderDashboard(state.currentRegionKey);
+    });
+  }
+
+  const autoStreamToggle = document.getElementById("autoStreamToggle");
+  if (autoStreamToggle) {
+    autoStreamToggle.addEventListener("change", (e) => {
+      state.isAutoStreamActive = e.target.checked;
+      const pulsePing = document.getElementById("livePulsePing");
+      const pulseDot = document.getElementById("livePulseDot");
+      const statusText = document.getElementById("liveStatusText");
+
+      if (state.isAutoStreamActive) {
+        startLiveAutoStream();
+        if (pulsePing) pulsePing.classList.remove("hidden");
+        if (pulseDot) pulseDot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
+        if (statusText) statusText.textContent = "Live Stream (6s)";
       } else {
-        statusBadge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-sky-400 mr-1.5"></span> Demo Mode`;
-        statusBadge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-sky-950/80 text-sky-300 flex items-center border border-sky-500/40 shadow-xs";
-        renderDashboard(state.currentRegionKey);
+        stopLiveAutoStream();
+        if (pulsePing) pulsePing.classList.add("hidden");
+        if (pulseDot) pulseDot.className = "relative inline-flex rounded-full h-2 w-2 bg-slate-500";
+        if (statusText) statusText.textContent = "Stream Paused";
       }
     });
   }
@@ -194,6 +219,84 @@ function setupEventListeners() {
       window.lockDashboard();
     });
   }
+}
+
+function startLiveAutoStream() {
+  if (state.autoStreamInterval) clearInterval(state.autoStreamInterval);
+  state.autoStreamInterval = setInterval(() => {
+    if (state.isAutoStreamActive) {
+      applyLiveTelemetryJitter(state.currentRegionKey, false);
+      renderDashboard(state.currentRegionKey);
+    }
+  }, 6000);
+}
+
+function stopLiveAutoStream() {
+  if (state.autoStreamInterval) {
+    clearInterval(state.autoStreamInterval);
+    state.autoStreamInterval = null;
+  }
+}
+
+function applyLiveTelemetryJitter(regionKey, isManual) {
+  const baseData = REGION_DATA[regionKey];
+  if (!baseData) return;
+
+  const updated = JSON.parse(JSON.stringify(baseData));
+
+  // 1. Storage micro variance (+/- 0.8%)
+  const storageJitter = (Math.random() * 1.6 - 0.8);
+  const newStorage = Math.max(8, Math.min(96, Number((baseData.storageLevel.value + storageJitter).toFixed(1))));
+  updated.storageLevel.value = newStorage;
+
+  // 2. Groundwater depth micro variance (+/- 0.15m)
+  const gwJitter = (Math.random() * 0.3 - 0.15);
+  const baseGwNum = parseFloat(baseData.groundwaterDepth.value);
+  if (!isNaN(baseGwNum)) {
+    updated.groundwaterDepth.value = `${(baseGwNum + gwJitter).toFixed(1)} m`;
+  }
+
+  // 3. Urban Consumption variance (+/- 4 MLD)
+  const baseCons = parseInt(baseData.dailyConsumption);
+  if (!isNaN(baseCons)) {
+    const consJitter = Math.floor(Math.random() * 9 - 4);
+    updated.dailyConsumption = `${baseCons + consJitter} MLD`;
+  }
+
+  // 4. ML 4-Day Forecast slight dynamic adjustment
+  updated.next4Days = baseData.next4Days.map((item, idx) => {
+    const dayJitter = Math.floor(Math.random() * 5 - 2);
+    const val = Math.max(10, Math.min(95, item.value + dayJitter));
+    return { ...item, value: val };
+  });
+
+  state.data[regionKey] = updated;
+
+  // Update live timestamp
+  const now = new Date();
+  const timeStr = now.toTimeString().split(" ")[0];
+  const lastUpdatedEl = document.getElementById("lastUpdatedBadge");
+  if (lastUpdatedEl) {
+    lastUpdatedEl.innerHTML = `<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-ping"></span> Live Ingested: ${timeStr}`;
+  }
+
+  flashMetricCards();
+}
+
+function flashMetricCards() {
+  const elements = [
+    document.getElementById("storageValue"),
+    document.getElementById("groundwaterValue"),
+    document.getElementById("consumptionValue")
+  ];
+
+  elements.forEach(el => {
+    if (el) {
+      el.classList.remove("flash-update");
+      void el.offsetWidth;
+      el.classList.add("flash-update");
+    }
+  });
 }
 
 function switchTab(tabId) {
@@ -225,7 +328,7 @@ function renderDashboard(regionKey) {
   if (!data) return;
 
   setText("regionTitle", data.name);
-  setText("regionSubtitle", `Telemetry Node: ${data.state} · Updated Live`);
+  setText("regionSubtitle", `Monitoring Zone: ${data.state} · Real-time Sensor Ingestion`);
 
   renderRiskStatusBadge(data.status, data.statusText);
 
@@ -234,8 +337,8 @@ function renderDashboard(regionKey) {
   const trendEl = document.getElementById("trendValue");
   if (trendEl) {
     trendEl.className = data.waterTrend.direction === 'down' 
-      ? 'text-xl font-black text-rose-400 flex items-center gap-1' 
-      : 'text-xl font-black text-emerald-400 flex items-center gap-1';
+      ? 'text-base sm:text-xl font-black text-rose-400 flex items-center gap-1' 
+      : 'text-base sm:text-xl font-black text-emerald-400 flex items-center gap-1';
   }
 
   setText("forecast7dValue", data.forecast7d.label);
@@ -287,8 +390,8 @@ function renderRiskStatusBadge(status, statusText) {
       break;
   }
 
-  badge.className = `px-3.5 py-1.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider border flex items-center gap-1.5 ${colorClasses}`;
-  badge.innerHTML = `<i data-lucide="${iconName}" class="w-4 h-4"></i> ${status} RISK`;
+  badge.className = `px-3 py-1.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider border flex items-center gap-1.5 ${colorClasses}`;
+  badge.innerHTML = `<i data-lucide="${iconName}" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> ${status} RISK`;
 }
 
 function renderAlertBanner(data) {
@@ -308,33 +411,33 @@ function renderAlertBanner(data) {
   const badgeClass = isHighOrCritical ? "bg-rose-600 text-white" : "bg-emerald-600 text-white";
 
   alertContainer.innerHTML = `
-    <div class="rounded-2xl border p-5 ${bgClass} backdrop-blur shadow-lg">
-      <div class="flex items-start gap-3.5">
-        <div class="p-2.5 rounded-xl ${badgeClass} shrink-0 mt-0.5 shadow-md">
-          <i data-lucide="${isHighOrCritical ? 'alert-triangle' : 'shield-check'}" class="w-5 h-5"></i>
+    <div class="rounded-2xl border p-4 sm:p-5 ${bgClass} backdrop-blur shadow-lg">
+      <div class="flex items-start gap-3 sm:gap-3.5">
+        <div class="p-2 sm:p-2.5 rounded-xl ${badgeClass} shrink-0 mt-0.5 shadow-md">
+          <i data-lucide="${isHighOrCritical ? 'alert-triangle' : 'shield-check'}" class="w-4 h-4 sm:w-5 sm:h-5"></i>
         </div>
         <div class="flex-1">
-          <div class="flex items-center gap-2.5 mb-1.5">
-            <h4 class="font-black text-base tracking-tight text-white">${alert.title}</h4>
-            <span class="text-[10px] px-2 py-0.5 rounded font-black uppercase ${badgeClass}">${data.status}</span>
+          <div class="flex items-center gap-2 mb-1">
+            <h4 class="font-black text-sm sm:text-base tracking-tight text-white">${alert.title}</h4>
+            <span class="text-[9px] sm:text-[10px] px-2 py-0.5 rounded font-black uppercase ${badgeClass}">${data.status}</span>
           </div>
-          <p class="text-sm text-slate-300 mb-3.5">${alert.summary}</p>
+          <p class="text-xs sm:text-sm text-slate-300 mb-3">${alert.summary}</p>
           
-          <div class="flex flex-wrap items-center gap-2 mb-3.5">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Main Factors:</span>
+          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-3">
+            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Main Factors:</span>
             ${data.factors.map(f => `
-              <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-900/90 border border-slate-700 text-slate-200 shadow-xs">
+              <span class="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-full bg-slate-900/90 border border-slate-700 text-slate-200">
                 <span class="${f.trend === 'down' ? 'text-rose-400 font-black' : 'text-amber-400 font-black'}">${f.trend === 'down' ? '↓' : '↑'}</span>
                 <span>${f.name}</span>
               </span>
             `).join('')}
           </div>
 
-          <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800">
-            <p class="text-xs font-bold uppercase tracking-wider text-sky-400 mb-2 flex items-center gap-1.5">
+          <div class="bg-slate-900/90 rounded-xl p-3 sm:p-4 border border-slate-800">
+            <p class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-sky-400 mb-1.5 flex items-center gap-1.5">
               <i data-lucide="sparkles" class="w-3.5 h-3.5 text-sky-400"></i> Proactive Decision Support (Early Action):
             </p>
-            <ul class="space-y-1.5 text-xs text-slate-300 list-disc list-inside">
+            <ul class="space-y-1 text-xs text-slate-300 list-disc list-inside">
               ${alert.recommendations.map(rec => `<li>${rec}</li>`).join('')}
             </ul>
           </div>
@@ -349,42 +452,21 @@ function renderFactorsList(factors) {
   if (!container) return;
 
   container.innerHTML = factors.map(factor => `
-    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-sky-500/50 transition">
-      <div class="flex items-center justify-between mb-1.5">
+    <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-sky-500/50 transition">
+      <div class="flex items-center justify-between mb-1">
         <span class="text-xs font-bold text-slate-200 flex items-center gap-1">
           <span class="font-bold ${factor.trend === 'down' ? 'text-rose-400' : 'text-amber-400'}">
             ${factor.trend === 'down' ? '↓' : '↑'}
           </span>
           ${factor.name}
         </span>
-        <span class="text-[11px] font-black text-sky-300 bg-sky-950/80 px-2 py-0.5 rounded-full border border-sky-500/30">
+        <span class="text-[10px] sm:text-[11px] font-black text-sky-300 bg-sky-950/80 px-2 py-0.5 rounded-full border border-sky-500/30">
           ${factor.weight}% weight
         </span>
       </div>
-      <p class="text-xs text-slate-400 leading-relaxed">${factor.desc}</p>
+      <p class="text-[11px] text-slate-400 leading-relaxed">${factor.desc}</p>
     </div>
   `).join('');
-}
-
-async function fetchLiveBackendData(regionKey) {
-  try {
-    const url = `${state.backendApiUrl}?region=${encodeURIComponent(regionKey)}`;
-    const response = await fetch(url, { method: "GET" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const liveJson = await response.json();
-    
-    state.data[regionKey] = liveJson;
-    renderDashboard(regionKey);
-  } catch (err) {
-    console.warn("Live API connection unreachable, using fallback:", err);
-    renderDashboard(regionKey);
-    
-    const banner = document.getElementById("apiStatusBadge");
-    if (banner) {
-      banner.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5"></span> API Standby (Demo Mock)`;
-      banner.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-amber-950/80 text-amber-300 flex items-center border border-amber-500/40";
-    }
-  }
 }
 
 function simulatePredictionDrift() {
@@ -404,6 +486,7 @@ function simulatePredictionDrift() {
   current.alert.summary = "Deep learning model flags high probability of reservoir head exhaustion within 96 hours.";
 
   renderDashboard(state.currentRegionKey);
+  flashMetricCards();
 }
 
 function setText(id, text) {
